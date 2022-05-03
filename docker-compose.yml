@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+
+  firebird:
+    image: 'jacobalberty/firebird:3.0.5'
+    container_name: firebird
+    ports:
+      - '3050:3050'
+    environment:
+      - ISC_PASSWORD=flex
+      - FIREBIRD_DATABASE=wh_new.fdb
+    volumes:
+      - firebird:/firebird
+
+volumes:
+  firebird:

@@ -26,7 +26,7 @@ WHERE o.typeop = 'A'
   and o.price = (select MIN(o.price)
                  FROM operation o
                           join goods g ON (o.id_goods = g.id_goods)
-                 where g.nomenclature = '���������(10 ��)')
+                 where g.nomenclature = 'Карандаши(10 шт)')
 group by a.name_ag;
 
 -- Найти склады, с которыми не было ни одной операции
@@ -56,12 +56,12 @@ select g.nomenclature
 from operation o
          join goods g using (id_goods)
          join agent a using (id_ag)
-where a.name_ag = '��������'
+where a.name_ag = 'Надежный'
   and o.price = (select max(o.price)
                  from operation o
                           join goods g using (id_goods)
                           join agent a using (id_ag)
-                 where a.name_ag = '��������')
+                 where a.name_ag = 'Надежный')
 
 -- Найти товары, с которыми было больше всего операций
 select g.nomenclature
