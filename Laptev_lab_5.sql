@@ -1,4 +1,5 @@
---1
+-- Выдать список сотрудников, работающих в Канаде и Англии с указанием их оклада.
+-- Привести для справки максимальную и минимальную оплату для сотрудников в этих странах
 select e.full_name,
        e.salary,
        (SELECT MAX(ee.salary)
@@ -12,7 +13,7 @@ FROM employee e
 WHERE e.job_country = 'England'
    or e.job_country = 'Canada';
 
---2
+-- Выдать названия отделов, бюджет которых, выше бюджета отдела номер 130
 SELECT a.DEPARTMENT
 FROM DEPARTMENT a
 WHERE a.BUDGET > (SELECT b.BUDGET
@@ -20,7 +21,8 @@ WHERE a.BUDGET > (SELECT b.BUDGET
                   WHERE b.DEPT_NO = 130)
   AND NOT a.DEPT_NO = 130;
 
---3
+-- Вывести список сотрудников из USA, оплата у которых выше средней оплаты по той работе, которую они выполняют
+-- (среднюю считать исходя из диапазона оплаты в таблице JOB)
 SELECT e.full_name
 from employee e
 where e.job_country = 'USA'
@@ -30,7 +32,8 @@ where e.job_country = 'USA'
                     and j.job_code = e.job_code
                     and j.job_grade = e.job_grade);
 
---4
+-- Для каждого проекта указать, какие отделы принимали участие в его выполнении в 1994 году и руководителей этих отделов.
+-- Для проектов, которые не выполнялись в 1994 году вместо названия отдела указать null
 SELECT P.PROJ_NAME, T.DEPT_NAME, T.mngr_name
 FROM PROJECT P
          LEFT JOIN
@@ -44,7 +47,13 @@ FROM PROJECT P
      ON (P.PROJ_ID = T.PROJ_ID);
 
 
---5
+
+
+-- ATTENTION! FOR WH_NEW ONLY!
+
+
+
+-- Составить список товаров, находящихся на складах с указанием города нахождения склада
 select (select g.nomenclature
         from goods g
         where g.id_goods = gwh.id_goods) as nomenclature,
@@ -53,27 +62,28 @@ select (select g.nomenclature
         where w.id_wh = gwh.id_wh)       as town
 FROM goods_wh gwh;
 
---6
+-- Составить список поставщиков, который выполняли операции с товаром «Папки»
 select (select a.name_ag
         from agent a
         where a.id_ag = o.id_ag) as ag
 FROM operation o
 where o.id_goods = (select g.id_goods
                     from goods g
-                    where g.nomenclature = '�����');
+                    where g.nomenclature = 'Папки');
 
---7
+-- Найти поставщиков, которые в операциях со складом «Склад 1» задействовали более одного вида товара
 select (select a.name_ag
         from agent a
         where a.id_ag = o.id_ag) as ag
 FROM operation o
 where o.id_wh = (select w.id_wh
                  from warehouse w
-                 where w.name = '����� 1')
+                 where w.name = 'Склад 1')
 group by o.id_ag
 having count(distinct o.id_goods) > 1;
 
---8
+-- Найти даты операций, когда товар «Папки» поставлялся по цене ниже
+-- средней, указать название поставщика
 SELECT oo.op_date,
        (select a.name_ag
         from agent a
@@ -81,9 +91,9 @@ SELECT oo.op_date,
 FROM operation oo
 WHERE oo.id_goods = (select g.id_goods
                      from goods g
-                     where g.nomenclature = '�����')
+                     where g.nomenclature = 'Папки')
   AND oo.price < (SELECT AVG(o.price)
                   FROM operation o
                   where o.id_goods = (select g.id_goods
                                       from goods g
-                                      where g.nomenclature = '�����'));
+                                      where g.nomenclature = 'Папки'));
