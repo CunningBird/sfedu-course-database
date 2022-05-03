@@ -1,5 +1,4 @@
--- 1. Создайте процедуры для добавления новых данных в таблицы AGENT и WAREHOUSE.
--- Для AGENT:
+-- 1. Создайте процедуры для добавления новых данных в таблицы AGENT и WAREHOUSE. Для AGENT:
 create or alter procedure INSERT_AGENT (
     ID_AG type of column AGENT.ID_AG,
     NAME_AG type of column AGENT.name_ag,

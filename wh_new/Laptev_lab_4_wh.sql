@@ -25,6 +25,8 @@ FROM operation o
          JOIN goods g ON (g.id_goods = o.id_goods)
 where g.nomenclature = 'Тетрадь 12л.';
 
+
+
 -- Составить отчет по операциям в 1 квартале 2007 года:
 -- название товара,
 -- имя поставщика,
