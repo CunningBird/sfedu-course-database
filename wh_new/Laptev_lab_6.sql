@@ -1,75 +1,103 @@
--- Найти поставщиков, которые работали с товаром «Папки»
--- TODO переписать на подзапросы
-select a.name_ag
-from operation o
-         join goods g using (id_goods)
-         join agent a using (id_ag)
-where g.nomenclature = 'Папки';
+-- 1. Найти поставщиков, которые работали с товаром «Папки».
+SELECT A.NAME_AG
+FROM AGENT A
+WHERE A.ID_AG IN
+      (SELECT O.ID_AG
+       FROM OPERATION O
+       WHERE O.ID_GOODS IN
+             (SELECT G.ID_GOODS
+              FROM GOODS G
+              WHERE G.NOMENCLATURE = 'Папки'));
 
--- Найти товары, с которыми не было ни одной операции
-select g.nomenclature
-FROM goods g
-         left JOIN operation o ON (g.id_goods = o.id_goods)
-where o.id is NULL
-group by g.nomenclature;
+-- 2. Найти товары, с которыми не было ни одной операции.
+SELECT G.NOMENCLATURE
+FROM GOODS G
+WHERE G.ID_GOODS NOT IN
+      (SELECT O.ID_GOODS
+       FROM OPERATION O);
 
--- Найти поставщиков, которые выполнили только одну поставку
-select a.name_ag
-from operation o
-         join agent a using (id_ag)
-where o.id = '1';
+-- ИЛИ
+SELECT G.NOMENCLATURE
+FROM GOODS G
+WHERE NOT EXISTS
+    (SELECT *
+     FROM OPERATION O
+     WHERE O.ID_GOODS = G.ID_GOODS);
 
--- Найти поставщиков, которые поставляли (операции A ) карандаши по минимальной цене
-select a.name_ag
-FROM operation o
-         JOIN agent a ON (o.id_ag = a.id_ag)
-WHERE o.typeop = 'A'
-  and o.price = (select MIN(o.price)
-                 FROM operation o
-                          join goods g ON (o.id_goods = g.id_goods)
-                 where g.nomenclature = 'Карандаши(10 шт)')
-group by a.name_ag;
+-- 3. Найти поставщиков, которые выполнили только одну поставку.
+SELECT A.NAME_AG
+FROM AGENT A
+WHERE SINGULAR
+          (SELECT *
+	FROM OPERATION O
+	WHERE A.ID_AG = O.ID_AG AND O.TYPEOP = 'A');
 
--- Найти склады, с которыми не было ни одной операции
-select w.name
-from warehouse w
-         left join operation o using (id_wh)
-where o.id is null;
+-- 4. Найти поставщиков, которые поставляли (операции A) карандаши по минимальной цене.
+SELECT A.NAME_AG
+FROM AGENT A
+         JOIN OPERATION O USING (ID_AG)
+         JOIN GOODS G USING (ID_GOODS)
+WHERE O.TYPEOP = 'A'
+  AND G.NOMENCLATURE = 'Карандаши(10 шт)'
+  AND O.PRICE <=
+    ALL (SELECT O2.PRICE
+         FROM OPERATION O2
+         WHERE O2.ID_GOODS = (SELECT G2.ID_GOODS
+                              FROM GOODS G2
+                              WHERE G2.NOMENCLATURE = 'Карандаши(10 шт)'));
 
--- Найти поставщиков, которые работают более чем с одним складом
-select a.name_ag, count(w.name)
-from operation o
-         join agent a using (id_ag)
-         join warehouse w using (id_wh)
-group by a.name_ag
-having count(w.name) > '1';
+-- 5. Найти склады, с которыми не было ни одной операции.
+SELECT W.NAME
+FROM WAREHOUSE W
+WHERE W.ID_WH NOT IN
+      (SELECT O.ID_WH
+       FROM OPERATION O);
 
--- Найти товары, для которых была выполнена только одна поставка (A)
-SELECT g.nomenclature
-FROM operation o
-         JOIN goods g ON (g.id_goods = o.id_goods)
-where o.typeop = 'A'
-GROUP BY g.nomenclature
-HAVING COUNT(o.id) = 1;
+-- 6. Найти поставщиков, которые работают более чем с одним складом.
+SELECT A.NAME_AG
+FROM AGENT A
+WHERE NOT SINGULAR
+    (SELECT DISTINCT O.ID_WH
+        FROM OPERATION O
+        WHERE O.ID_AG = A.ID_AG AND O.TYPEOP = 'A')
+  AND A.ID_AG IN
+      (SELECT O2.ID_AG
+       FROM OPERATION O2
+       WHERE O2.TYPEOP = 'A');
 
--- Найти товары, которые поставщик «Надежный» поставлял по наибольшей цене
-select g.nomenclature
-from operation o
-         join goods g using (id_goods)
-         join agent a using (id_ag)
-where a.name_ag = 'Надежный'
-  and o.price = (select max(o.price)
-                 from operation o
-                          join goods g using (id_goods)
-                          join agent a using (id_ag)
-                 where a.name_ag = 'Надежный')
+-- 7. Найти товары, для которых была выполнена только одна поставка (A)
+SELECT G.NOMENCLATURE
+FROM GOODS G
+WHERE SINGULAR(SELECT O.ID_GOODS
+        FROM OPERATION O
+        WHERE O.ID_GOODS = G.ID_GOODS AND O.TYPEOP = 'A');
 
--- Найти товары, с которыми было больше всего операций
-select g.nomenclature
-from operation o
-         join goods g on (o.id_goods = g.id_goods)
-group by g.nomenclature
-having COUNT(o.id) = (select MAX(cc)
-                      from (select COUNT(o.id) as cc
-                            from operation o
-                            group by o.id_goods));
+-- 8. Найти товары, которые поставщик «Надежный» поставлял по наибольшей цене.
+SELECT G.NOMENCLATURE
+FROM GOODS G
+         JOIN OPERATION O USING (ID_GOODS)
+         JOIN AGENT A USING (ID_AG)
+WHERE A.NAME_AG = 'Надежный'
+  AND O.TYPEOP = 'A'
+  AND O.PRICE >= ALL (SELECT O2.PRICE
+                      FROM OPERATION O2
+                               JOIN AGENT A2 USING (ID_AG)
+                      WHERE O2.ID_GOODS = O.ID_GOODS
+                        AND A2.NAME_AG
+    != 'Надежный'
+  AND O2.TYPEOP = 'A');
+
+
+-- 9. Найти товары, с которыми было больше всего операций
+SELECT G.NOMENCLATURE
+FROM GOODS G
+         LEFT JOIN OPERATION O USING (ID_GOODS)
+WHERE (SELECT COUNT(O1.ID_GOODS)
+       FROM GOODS G1
+                LEFT JOIN OPERATION O1 USING (ID_GOODS)
+       WHERE O1.ID_GOODS = O.ID_GOODS) >=
+          ALL (SELECT COUNT(O2.ID_GOODS)
+               FROM GOODS G2
+                        LEFT JOIN OPERATION O2 USING (ID_GOODS)
+               GROUP BY G2.NOMENCLATURE)
+GROUP BY G.NOMENCLATURE;
