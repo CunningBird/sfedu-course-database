@@ -1,4 +1,5 @@
 -- Найти поставщиков, которые работали с товаром «Папки»
+-- TODO переписать на подзапросы
 select a.name_ag
 from operation o
          join goods g using (id_goods)

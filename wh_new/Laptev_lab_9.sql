@@ -37,7 +37,7 @@ end
 
 create table SOTR(PAY numeric(15,2));
 insert into sotr (pay) values('1000');
-create exception ERROR_PAY ’Запрещено!!!’;
+create exception ERROR_PAY 'Запрещено!!!';
 
 CREATE OR ALTER TRIGGER AU_SOTR FOR SOTR
 ACTIVE AFTER UPDATE POSITION 0
@@ -121,6 +121,9 @@ INSERT INTO SERVICES(ID_ACC, SERV_NAME, COST)
 values ('1', 'Уборка помещения', '3425');
 INSERT INTO SERVICES(ID_ACC, SERV_NAME, COST)
 values ('1', 'Дезинсекция', '3500');
+
+INSERT INTO SERVICES(ID_ACC, SERV_NAME, COST)
+values ('1', 'Дезинсекцияz', '6500');
 
 -- Проверяем работу триггера, вводим новое значение в таблицу ORDERS
 INSERT INTO ORDERS(ACC, ORDER_DATE, RECIP_NAME, PHONE, SUMMA)
@@ -213,7 +216,7 @@ LOOKUP_ID integer)
 
 
 -- Чтобы реализовать действие NOACTION при удалении или редактировании строки в таблице LOOKUP, создадим исключение
-create exception NOT_VALID ’Ошибка!!!’;
+create exception NOT_VALID 'Ошибка!!!';
 
 
 -- Триггер, который проверяет ограничение ссылочной целостности на стороне дочерней таблицы,
@@ -405,7 +408,7 @@ declare variable mn integer;
 begin
 	dt = extract(day from current_date);
 	mn = extract(month from current_date);
-	if (dt = 1 and mn = 1) then
+	if (dt = 4 and mn = 5) then
 	exception HOLIDAY;
 end
 
@@ -417,7 +420,7 @@ declare variable mn integer;
 begin
 	dt = extract(day from current_date);
 	mn = extract(month from current_date);
-	if (dt = 1 and mn = 1) then
+	if (dt = 4 and mn = 5) then
 	exception HOLIDAY;
 end
 
@@ -429,7 +432,7 @@ declare variable mn integer;
 begin
 	dt = extract(day from current_date);
 	mn = extract(month from current_date);
-	if (dt = 1 and mn = 1) then
+	if (dt = 4 and mn = 5) then
 	exception HOLIDAY;
 end
 
@@ -439,6 +442,10 @@ end
 
 INSERT INTO OPERATION
 VALUES('19', 'T9', 'p3', 'C4', 'A', '24', '320', 'NOW');
+
+alter trigger OPERATION_NO_IN inactive;
+alter trigger OPERATION_NO_UP inactive;
+alter trigger OPERATION_NO_DEL inactive;
 
 
 

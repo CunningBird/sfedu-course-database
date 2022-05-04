@@ -11,6 +11,8 @@ begin
  values (:ID_AG, :NAME_AG, :town, :PHONE);
  suspend;
 end
+EXECUTE PROCEDURE INSERT_AGENT('p8', 'Flex agent', 'Rostov', '55-55-555');
+
 
 -- Для WAREHOUSE
 create or alter procedure INSERT_WAREHOUSE (
@@ -24,6 +26,7 @@ begin
  values (:id_wh, :name, :town);
  suspend;
 end
+EXECUTE PROCEDURE INSERT_WAREHOUSE('c7', 'Flew warehouse', 'Rostov');
 
 
 -- 2. Создайте процедуру изменения остатка на складе. Параметры – название товара, название склада, новое количество.
@@ -42,6 +45,7 @@ begin
     INSERT into log_file (inform) values ('Остаток обновлён');
     suspend;
 end
+EXECUTE PROCEDURE REST_UPDATE('Тетрадь 12л.', 'Склад 2', 2000);
 
 
 -- 3. Создайте процедуру удаления остатка со склада (должна быть удалена запись из таблицы GOODS_WH). Параметры –
@@ -74,6 +78,7 @@ begin
 	and ID_WH = :ID_W;
 	suspend;
 end
+EXECUTE PROCEDURE REST_DELETE('Тетрадь 12л.', 'Склад 2');
 
 
 -- 4. Изменить процедуру REST_INSERT так, чтобы дополнительно контролировалось условие – комбинация id_goods, id_wh в
@@ -120,6 +125,7 @@ begin
 	insert into LOG_FILE (INFORM) values ('Остаток добавлен');
 	suspend;
 end
+EXECUTE PROCEDURE REST_INSERT('Тетрадь 12л.', 'Склад 2', 8000);
 
 
 -- 5. Создайте процедуру, которая для заданного (в параметре) наименования товара находила поставщиков, которые
@@ -147,6 +153,8 @@ begin
 	insert into LOG_FILE (INFORM) values (:A_NAME);
 	suspend;
 end
+-- Пишет в лог
+EXECUTE PROCEDURE MAX_OP_AGENTS('Блокнот');
 
 
 -- 6. Создайте процедуру, которая записывает в LOG_FILE в поле DDATA даты всех операций A, выполненных заданным
@@ -164,3 +172,4 @@ begin
 	insert into LOG_FILE (DDATA) values(:O_DATE);
 	suspend;
 end
+EXECUTE PROCEDURE DATES_OP('ООО Партнер');
