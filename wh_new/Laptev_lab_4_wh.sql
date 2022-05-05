@@ -23,7 +23,7 @@ FROM operation o
          JOIN warehouse w ON (w.id_wh = o.id_wh)
          JOIN agent a ON (o.id_ag = a.id_ag)
          JOIN goods g ON (g.id_goods = o.id_goods)
-where g.nomenclature = 'Тетрадь 12л.';
+where g.nomenclature = 'Папки';
 
 
 
@@ -54,11 +54,10 @@ where EXTRACT(year from o.op_date) = 2007
   and EXTRACT(month from o.op_date) < 5;
 
 -- Найти количество разных товаров, с которыми работал каждый поставщик
-SELECT a.name_ag, g.nomenclature, SUM(o.quantity) AS quantity, g.measure
+SELECT a.name_ag, count(distinct o.id_goods)
 FROM agent a
-         LEFT join operation o ON (o.id_ag = a.id_ag)
-         left JOIN goods g ON (o.id_goods = g.id_goods)
-group BY a.name_ag, g.nomenclature, g.measure;
+   join operation o ON (o.id_ag = a.id_ag)
+group BY a.name_ag;
 
 -- Найти минимальную стоимость операции для каждого поставщика
 SELECT a.name_ag, MIN(o.quantity * o.price) as min_value

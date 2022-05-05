@@ -17,12 +17,12 @@ WHERE G.ID_GOODS NOT IN
        FROM OPERATION O);
 
 -- ИЛИ
-SELECT G.NOMENCLATURE
-FROM GOODS G
-WHERE NOT EXISTS
-    (SELECT *
-     FROM OPERATION O
-     WHERE O.ID_GOODS = G.ID_GOODS);
+-- SELECT G.NOMENCLATURE
+-- FROM GOODS G
+-- WHERE NOT EXISTS
+--     (SELECT *
+--      FROM OPERATION O
+--      WHERE O.ID_GOODS = G.ID_GOODS);
 
 -- 3. Найти поставщиков, которые выполнили только одну поставку.
 SELECT A.NAME_AG
@@ -30,7 +30,7 @@ FROM AGENT A
 WHERE SINGULAR
           (SELECT *
 	FROM OPERATION O
-	WHERE A.ID_AG = O.ID_AG AND O.TYPEOP = 'A');
+	WHERE A.ID_AG = O.ID_AG);
 
 -- 4. Найти поставщиков, которые поставляли (операции A) карандаши по минимальной цене.
 SELECT A.NAME_AG
@@ -38,13 +38,13 @@ FROM AGENT A
          JOIN OPERATION O USING (ID_AG)
          JOIN GOODS G USING (ID_GOODS)
 WHERE O.TYPEOP = 'A'
-  AND G.NOMENCLATURE = 'Карандаши(10 шт)'
+  AND G.NOMENCLATURE = 'Папки'
   AND O.PRICE <=
     ALL (SELECT O2.PRICE
          FROM OPERATION O2
          WHERE O2.ID_GOODS = (SELECT G2.ID_GOODS
                               FROM GOODS G2
-                              WHERE G2.NOMENCLATURE = 'Карандаши(10 шт)'));
+                              WHERE G2.NOMENCLATURE = 'Папки'));
 
 -- 5. Найти склады, с которыми не было ни одной операции.
 SELECT W.NAME
@@ -77,27 +77,27 @@ SELECT G.NOMENCLATURE
 FROM GOODS G
          JOIN OPERATION O USING (ID_GOODS)
          JOIN AGENT A USING (ID_AG)
-WHERE A.NAME_AG = 'Надежный'
+WHERE A.NAME_AG = 'Астра'
   AND O.TYPEOP = 'A'
   AND O.PRICE >= ALL (SELECT O2.PRICE
                       FROM OPERATION O2
                                JOIN AGENT A2 USING (ID_AG)
                       WHERE O2.ID_GOODS = O.ID_GOODS
                         AND A2.NAME_AG
-    != 'Надежный'
+    != 'Астра'
   AND O2.TYPEOP = 'A');
 
 
 -- 9. Найти товары, с которыми было больше всего операций
 SELECT G.NOMENCLATURE
 FROM GOODS G
-         LEFT JOIN OPERATION O USING (ID_GOODS)
+         JOIN OPERATION O USING (ID_GOODS)
 WHERE (SELECT COUNT(O1.ID_GOODS)
        FROM GOODS G1
-                LEFT JOIN OPERATION O1 USING (ID_GOODS)
+                JOIN OPERATION O1 USING (ID_GOODS)
        WHERE O1.ID_GOODS = O.ID_GOODS) >=
           ALL (SELECT COUNT(O2.ID_GOODS)
                FROM GOODS G2
-                        LEFT JOIN OPERATION O2 USING (ID_GOODS)
+                        JOIN OPERATION O2 USING (ID_GOODS)
                GROUP BY G2.NOMENCLATURE)
 GROUP BY G.NOMENCLATURE;

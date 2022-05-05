@@ -126,7 +126,7 @@ begin
 	into :N_AGENT do
 	suspend;
 end
-execute procedure WH_AGENTS('Склад 2', '1.02.2006', '10.05.2008');
+execute procedure WH_AGENTS('Склад 2', '1.02.2006', '10.05.2022');
 
 
 -- 7. Выдать названия складов, для которых количество указанного товара меньше заданного.
@@ -145,7 +145,7 @@ begin
 	into :WH_NAMES do
 	suspend;
 end
-execute procedure MIN_G_QUANTITY('Папки', '1000');
+execute procedure MIN_G_QUANTITY('Папки', '10000000');
 
 
 -- 8. Выдать названия поставщиков, у которых объем поставок заданного товара меньше некоторого значения.
@@ -165,10 +165,11 @@ begin
     into :AGENT_N do
     suspend;
 end
-execute procedure AGENTS_WITH_MIN_Q('Папки', '1000');
+execute procedure AGENTS_WITH_MIN_Q('Бумага для факсов', '100000');
 
 
--- 9. Выдать список операций за заданный период с указанием названия товара, склада, поставщика. Указать стоимость каждой поставки (цена * количество).
+-- 9. Выдать список операций за заданный период с указанием названия товара, склада, поставщика. Указать стоимость
+-- каждой поставки (цена * количество).
 create or alter procedure OP_INF(
 	BEGIN_DATE type of column OPERATION.OP_DATE,
 	END_DATE type of column OPERATION.OP_DATE)
@@ -188,7 +189,7 @@ begin
 	into :OP, :GOODS_N, :WH_N, :AGENT_N, :ST do
 	suspend;
 end
-execute procedure OP_INF('1.02.2006', '10.05.2008');
+execute procedure OP_INF('1.02.1978', '04.05.2022');
 
 
 -- 10.Для заданных названия таблицы и имени столбца в таблице (столбец содержит числовые данные) найти сумму значений в этом столбце.
@@ -204,4 +205,4 @@ begin
 	execute statement OPER into :KOL;
 	suspend;
 end
-execute procedure SUM_IN_COLUMN('OPERATION', 'QUANTITY');
+execute procedure SUM_IN_COLUMN('OPERATION', 'PRICE');

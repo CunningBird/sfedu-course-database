@@ -29,13 +29,13 @@ WHERE d.department = 'Field Office: East Coast';
 -- Для каждого заказа выдать стоимость заказа и наименование валюты страны, где расположен заказчик
 SELECT s.po_number, s.total_value, co.currency
 FROM sales s
-         LEFT JOIN customer c ON (s.cust_no = c.cust_no)
-         LEFT JOIN country co ON (c.country = co.country);
+         JOIN customer c ON (s.cust_no = c.cust_no)
+         JOIN country co ON (c.country = co.country);
 
 -- Для каждого заказа указать страну, в которой находится сотрудник, оформлявший договор-заказ
 SELECT s.po_number, e.job_country as emp_country
 FROM sales s
-         LEFT JOIN employee e ON (s.sales_rep = e.emp_no);
+         JOIN employee e ON (s.sales_rep = e.emp_no);
 
 -- Выдать список сотрудников, работающих над проектом Video Database, с указанием их оклада, отсортировав список по убыванию оклада
 SELECT e.full_name, e.salary
